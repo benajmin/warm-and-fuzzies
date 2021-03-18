@@ -3,6 +3,7 @@ import argparse
 import requests
 import shutil
 import os
+import subprocess
 
 
 def get_submissions(api_key, form_id):
@@ -17,6 +18,19 @@ def parse_args():
   return parser.parse_args()
 
 
+def download_answers(answers):
+  for i, answer in enumerate(answers):
+    if answer['name'].endswith('Drawing') and answer['answer']:
+      url = answer['answer']
+      r = requests.get(url)
+      if len(r.content) > 1500:
+        with open(f'tmp/{i}.png', 'wb') as f_img:
+          f_img.write(r.content)
+    else:
+      with open(f'tmp/{i}.txt', 'w') as f_text:
+        f_text.write(answer['answer'])
+
+
 def main():
   args = parse_args()
 
@@ -28,17 +42,10 @@ def main():
   names = set(x['text'] for x in answers)
   for name in names:
     os.mkdir('tmp')
-    with open('tmp/text.txt', 'w') as f_text:
-      for answer in answers:
-        if answer['text'] == name:
-          if answer['name'].endswith('Drawing'):
-            url = answer['answer']
-            filename = url.split('/')[-1]
-            r = requests.get(url)
-            with open(os.path.join('tmp', filename), 'wb') as f_img:
-              f_img.write(r.content)
-          else:
-            print(answer['answer'], file=f_text)
+    download_answers(x for x in answers if x['text'] == name)
+    shutil.copy('template.tex', f'tmp/{name.split()[0]}.tex')
+    subprocess.Popen(['xelatex', f'{name.split()[0]}.tex'], cwd='tmp', stdout=subprocess.DEVNULL).wait()
+    shutil.copy(f'tmp/{name.split()[0]}.pdf', f'out/{name.replace(" ", "")}.pdf')
     shutil.rmtree('tmp', ignore_errors=True)
 
 
