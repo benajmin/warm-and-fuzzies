@@ -1,0 +1,48 @@
+\documentclass{article}
+
+\newcommand*{\MaxI}{100}
+
+\usepackage{pgffor}
+\usepackage{fontspec}
+\usepackage{fancyhdr}
+\usepackage[margin=1in]{geometry}
+\usepackage{parskip}
+\usepackage{verbatim}
+\usepackage{graphicx}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\today}
+\renewcommand{\headrulewidth}{0pt}
+
+\newfontfamily{\titlefont}{Comic Sans MS}
+\newfontfamily{\bodyfont}{Helvetica}
+
+\begin{document}
+
+\begin{center}
+  \Huge \titlefont \jobname's Warm and Fuzzies
+\end{center}
+
+
+\vspace{0.5cm}
+\foreach \i in {1,2,...,\MaxI}{
+  \IfFileExists{\i.txt} {
+    \vspace{0.5cm}
+    \bodyfont
+    \large
+    "\input{\i.txt}" \\
+
+  }{}
+}
+\pagebreak
+\foreach \i in {1,2,...,\MaxI}{
+  \IfFileExists{\i.png} {
+    \begin{center}
+      \frame{\includegraphics[scale=0.64]{\i.png}} \\
+    \end{center}
+    \vspace{1cm}
+  }{}
+}
+
+\end{document}
