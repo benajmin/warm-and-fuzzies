@@ -4,6 +4,7 @@ import requests
 import shutil
 import os
 import subprocess
+from createForm import get_term
 
 
 def get_submissions(api_key, form_id):
@@ -45,7 +46,7 @@ def main():
     download_answers(x for x in answers if x['text'] == name)
     shutil.copy('template.tex', f'tmp/{name.split()[0]}.tex')
     subprocess.Popen(['xelatex', f'{name.split()[0]}.tex'], cwd='tmp', stdout=subprocess.DEVNULL).wait()
-    shutil.copy(f'tmp/{name.split()[0]}.pdf', f'out/{name.replace(" ", "")}.pdf')
+    shutil.copy(f'tmp/{name.split()[0]}.pdf', f'out/{get_term()}_{name.replace(" ", "")}_WarmAndFuzzies.pdf')
     shutil.rmtree('tmp', ignore_errors=True)
 
 
