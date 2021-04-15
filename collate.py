@@ -6,10 +6,34 @@ import os
 import subprocess
 import html
 from createForm import get_term
+import re
+
+
+def tex_escape(text):
+  """
+    :param text: a plain text message
+    :return: the message escaped to appear correctly in LaTeX
+  """
+  conv = {
+    '&': r'\&',
+    '%': r'\%',
+    '$': r'\$',
+    '#': r'\#',
+    '_': r'\_',
+    '{': r'\{',
+    '}': r'\}',
+    '~': r'\textasciitilde{}',
+    '^': r'\^{}',
+    '\\': r'\textbackslash{}',
+    '<': r'\textless{}',
+    '>': r'\textgreater{}',
+  }
+  regex = re.compile('|'.join(re.escape(str(key)) for key in sorted(conv.keys(), key = lambda item: - len(item))))
+  return regex.sub(lambda match: conv[match.group()], text)
 
 
 def get_submissions(api_key, form_id):
-  r = requests.get(f'https://api.jotform.com/form/{form_id}/submissions?apiKey={api_key}')
+  r = requests.get(f'https://api.jotform.com/form/{form_id}/submissions?apiKey={api_key}&limit=1000')
   return [y for x in r.json()['content'] for y in x['answers'].values() if 'answer' in y]
 
 
@@ -30,7 +54,7 @@ def download_answers(answers):
           f_img.write(r.content)
     else:
       with open(f'tmp/{i}.txt', 'w') as f_text:
-        f_text.write(html.unescape(answer['answer']))
+        f_text.write(tex_escape(html.unescape(answer['answer'])))
 
 
 def main():
