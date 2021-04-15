@@ -4,6 +4,7 @@ import requests
 import shutil
 import os
 import subprocess
+import html
 from createForm import get_term
 
 
@@ -24,12 +25,12 @@ def download_answers(answers):
     if answer['name'].endswith('Drawing') and answer['answer']:
       url = answer['answer']
       r = requests.get(url)
-      if len(r.content) > 1500:
+      if len(r.content) > 6000:
         with open(f'tmp/{i}.png', 'wb') as f_img:
           f_img.write(r.content)
     else:
       with open(f'tmp/{i}.txt', 'w') as f_text:
-        f_text.write(answer['answer'])
+        f_text.write(html.unescape(answer['answer']))
 
 
 def main():
