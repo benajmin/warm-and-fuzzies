@@ -100,15 +100,27 @@ def create_form(api_key, names):
       get_submit(len(names)*2+2),
   ]
   payload = {
-    'questions': questions,
     'properties': {
       'title': f'{get_term()} Warm and Fuzzies',
       'height': '539'
     }
   }
+
   r = requests.put(f'https://api.jotform.com/form?apiKey={api_key}', json=payload)
   if r.json()['responseCode'] == 200:
-    print(f'Created form: {r.json()["content"]["id"]}')
+    form_id = r.json()['content']['id']
+    print(f'Created form: {form_id}')
+  else:
+    print(r.content)
+    return
+
+
+  payload = {
+    'questions': questions,
+  }
+  r = requests.put(f'https://api.jotform.com/form/{form_id}/questions?apiKey={api_key}', json=payload)
+  if r.json()['responseCode'] == 200:
+    print('Added questions')
   else:
     print(r.content)
 
